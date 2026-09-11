@@ -1,0 +1,145 @@
+{
+  "name": "DIAVN High-Risk Field Verification Dispatch",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "diavn-events",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "id": "node-webhook-receiver",
+      "name": "DIAVN Webhook Receiver",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 1. Validate Canonical HMAC-SHA256 Signature and Check Replay Window\nconst crypto = require('crypto');\nconst secret = $env.DIAVN_WEBHOOK_SECRET || 'diavn-default-shared-secret-for-n8n-auth';\n\nconst headers = $node[\"DIAVN Webhook Receiver\"].json.headers || {};\nconst body = $node[\"DIAVN Webhook Receiver\"].json.body || {};\n\nconst rawSignature = headers['x-diavn-signature'] || headers['X-DIAVN-Signature'] || '';\nconst timestamp = headers['x-diavn-timestamp'] || headers['X-DIAVN-Timestamp'] || body.timestamp || '';\nconst eventId = headers['x-diavn-event-id'] || headers['X-DIAVN-Event-ID'] || body.event_id;\n\nif (!rawSignature || !timestamp) {\n  throw new Error('Missing signature (X-DIAVN-Signature) or timestamp (X-DIAVN-Timestamp) header');\n}\n\n// 5-minute replay window check (300 seconds)\nconst now = Date.now();\nconst eventTime = new Date(timestamp).getTime();\nif (isNaN(eventTime) || Math.abs(now - eventTime) > 300000) {\n  throw new Error('Webhook timestamp outside acceptable 300s replay window');\n}\n\n// Canonical HMAC check: HMAC-SHA256(timestamp + '.' + JSON.stringify(body), secret)\nconst cleanSig = rawSignature.replace(/^sha256=/, '');\nconst expectedSig = crypto.createHmac('sha256', secret).update(timestamp + '.' + JSON.stringify(body)).digest('hex');\n\nif (cleanSig !== expectedSig) {\n  throw new Error('Canonical HMAC signature verification mismatch');\n}\n\nreturn [{\n  json: {\n    ...body,\n    event_id: eventId,\n    signature_valid: true,\n    authenticated_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-validate-security",
+      "name": "Validate HMAC & Timestamp",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 2. Durable Idempotency & Deduplication Check\n// Guarantees an event_id is only processed once for physical field dispatch\nconst staticData = getWorkflowStaticData('global');\nstaticData.processedEvents = staticData.processedEvents || {};\n\nconst eventId = $json.event_id;\nif (staticData.processedEvents[eventId]) {\n  return [{\n    json: {\n      ...$json,\n      is_duplicate: true,\n      status: 'duplicate_suppressed',\n      first_seen_at: staticData.processedEvents[eventId]\n    }\n  }];\n}\n\n// Mark event as processed\nstaticData.processedEvents[eventId] = new Date().toISOString();\nreturn [{\n  json: {\n    ...$json,\n    is_duplicate: false\n  }\n}];"
+      },
+      "id": "node-deduplicate",
+      "name": "Durable Deduplication",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.event_type}}",
+              "value2": "CASE_VERIFICATION_HIGH_RISK"
+            }
+          ],
+          "number": [
+            {
+              "value1": "={{$json.risk_score}}",
+              "operation": "largerEqual",
+              "value2": 70
+            }
+          ],
+          "boolean": [
+            {
+              "value1": "={{$json.is_duplicate}}",
+              "value2": false
+            }
+          ]
+        }
+      },
+      "id": "node-evaluate-eligibility",
+      "name": "Is Event Eligible for Operational Dispatch?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [940, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 3. Create Operational Field Verification Dispatch Package (Defensive Routing of Backend Task)\nconst data = $json;\n\nconst caseIdentifier = data.case_number || data.case_id;\nconst taskId = data.verification_task_id || `TSK-${caseIdentifier}-01`;\nconst baseOrigin = data.case_url ? data.case_url.split('/cases/')[0] : 'http://localhost:3000';\nconst fieldCaptureUrl = `${baseOrigin}/field/capture?caseId=${caseIdentifier}`;\n\nconst fieldDispatchNotice = {\n  dispatch_id: `DISPATCH-${caseIdentifier}-${Date.now().toString(36).toUpperCase()}`,\n  case_number: data.case_number || data.case_id,\n  case_id: data.case_id,\n  risk_score: data.risk_score,\n  risk_band: data.risk_band,\n  task_id: taskId,\n  task_type: 'physical_site_verification',\n  priority: 'CRITICAL_HIGH',\n  operational_instructions: data.recommended_action || 'Execute on-site physical serial plate and photo verification',\n  active_anomalies: data.top_anomalies || [],\n  case_dossier_url: data.case_url,\n  field_capture_url: fieldCaptureUrl,\n  dispatched_at: new Date().toISOString(),\n  event_reference: data.event_id\n};\n\nconsole.log(`[DIAVN Operational Dispatch] Case ${caseIdentifier} -> Field Verification Queue. Task ID: ${taskId}`);\nconsole.log(`Field Capture Link: ${fieldDispatchNotice.field_capture_url}`);\n\nreturn [{\n  json: {\n    ...fieldDispatchNotice,\n    status: 'field_verification_enqueued',\n    workflow_stage: 'PHYSICAL_INSPECTION_PENDING'\n  }\n}];"
+      },
+      "id": "node-field-dispatch",
+      "name": "Dispatch Field Verification Task",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1200, 220]
+    },
+    {
+      "parameters": {
+        "functionCode": "// 4. Audit Log for Low/Medium or Duplicate Lifecycle Events\nconst data = $json;\nconst isDup = data.is_duplicate === true;\n\nconst logEntry = {\n  event_id: data.event_id,\n  case_number: data.case_number || data.case_id,\n  event_type: data.event_type,\n  risk_score: data.risk_score,\n  risk_band: data.risk_band,\n  disposition: isDup ? 'DUPLICATE_SUPPRESSED' : 'STANDARD_AUDIT_LOGGED',\n  logged_at: new Date().toISOString()\n};\n\nconsole.log(`[DIAVN Outbox Audit] ${logEntry.disposition}: Event ${data.event_id} (Score: ${data.risk_score})`);\nreturn [{ json: logEntry }];"
+      },
+      "id": "node-audit-log",
+      "name": "Audit Log Only",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1200, 420]
+    }
+  ],
+  "connections": {
+    "DIAVN Webhook Receiver": {
+      "main": [
+        [
+          {
+            "node": "Validate HMAC & Timestamp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate HMAC & Timestamp": {
+      "main": [
+        [
+          {
+            "node": "Durable Deduplication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Durable Deduplication": {
+      "main": [
+        [
+          {
+            "node": "Is Event Eligible for Operational Dispatch?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Event Eligible for Operational Dispatch?": {
+      "main": [
+        [
+          {
+            "node": "Dispatch Field Verification Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Audit Log Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1"
+}
