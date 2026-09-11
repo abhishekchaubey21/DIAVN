@@ -10,6 +10,7 @@ import {
   getCaseWorkflowEvents 
 } from '@/lib/api';
 import { RiskScoreCard } from '@/components/RiskScoreCard';
+import { FieldVerificationPanel } from '@/components/FieldVerificationPanel';
 import { AlertCard } from '@/components/AlertCard';
 import { EvidenceCard } from '@/components/EvidenceCard';
 import { InvoiceEvidenceCard } from '@/components/InvoiceEvidenceCard';
@@ -85,7 +86,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
           {
             id: `TSK-${caseItem.case_number}-01`,
             case_id: caseItem.id,
-            task_type: 'field_verification_audit',
+            task_type: 'physical_site_visit',
             status: 'pending',
             instructions: riskScore.recommended_action,
             findings: riskScore.summary_reasoning,
@@ -98,10 +99,11 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
   const evidenceItems: EvidenceItem[] = (imagesData?.images || []).map((img: any, i: number) => ({
     id: img.id || `EVD-${caseItem.id}-${i}`,
     case_id: caseItem.id,
-    evidence_type: 'installation_photo',
-    document_name: img.original_filename || `Installation Photo ${i + 1}`,
-    file_path: img.file_path || '',
-    verification_status: img.verification_status || 'analyzed',
+    type: 'image',
+    title: img.original_filename || `Installation Photo ${i + 1}`,
+    details: `Image type: ${img.image_type || 'installation_wide'} • Status: ${img.verification_status || 'analyzed'}`,
+    file_url: img.file_path || '',
+    status: (img.tampering_detected || img.verification_status === 'tampered' || img.verification_status === 'anomaly') ? 'suspicious' : 'verified',
     metadata: {
       exif_timestamp: img.exif_timestamp,
       exif_lat: img.exif_lat,
@@ -135,11 +137,13 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               quantity: 1,
               unit_price: caseItem.loan_amount,
               total_amount: caseItem.loan_amount,
-              serial_numbers: [(caseItem as any).serial_number || `ASP-${caseItem.case_number.slice(-3)}`]
+              serial_numbers: [(caseItem as any).serial_number || `MIC-2025-${caseItem.case_number.slice(-4)}`]
             }
           ]
         }
       ];
+
+  const totalEvidenceCount = evidenceItems.length + attachedInvoices.length + (riskScore?.components?.length || 0);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -160,8 +164,16 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
       {/* Case Header & Status Banner */}
       <VerificationResult
         status={caseItem.status}
-        riskLevel={caseItem.risk_level}
+        riskLevel={riskScore?.risk_band ? (riskScore.risk_band.toLowerCase() as any) : caseItem.risk_level}
         caseNumber={caseItem.case_number}
+      />
+
+      {/* Prominent Action Panel for High Risk Cases Requiring Field Audit */}
+      <FieldVerificationPanel
+        caseItem={caseItem}
+        riskScore={riskScore}
+        tasks={verificationTasks}
+        evidenceCount={totalEvidenceCount}
       />
 
       {/* Case-Level End-to-End Orchestration Pipeline (Phase 8) */}
@@ -249,7 +261,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
                 <div key={t.id} className="p-3.5 bg-[#F8FAFD] rounded-xl border border-[#E5E9F2] text-xs space-y-1.5">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-[#182033] capitalize font-mono">
-                      {t.task_type.replace('_', ' ')}
+                      {t.task_type.replace(/_/g, ' ')}
                     </span>
                     <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-[#FFFBEB] text-[#92400E] border border-[#FDE68A]">
                       {t.status}
@@ -269,6 +281,13 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
         {/* Right Column: Composite Risk Engine, Signals & Evidence Panels */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Phase 6 Risk Scoring Authority & "Why Was This Flagged?" Evidence Explorer */}
+          <RiskScoreCard
+            caseId={caseItem.id}
+            initialScore={riskScore}
+            caseScenarioId={caseItem.case_number}
+          />
+
           {/* Extracted Invoice Evidence Section (Phase 2 Ingestion) */}
           <div className="space-y-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-[#182033] flex items-center gap-2">
@@ -307,13 +326,6 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
               caseScenarioId={caseItem.case_number}
             />
           </div>
-
-          {/* Phase 6 Risk Scoring Authority */}
-          <RiskScoreCard
-            caseId={caseItem.id}
-            initialScore={riskScore}
-            caseScenarioId={caseItem.case_number}
-          />
 
           {/* Risk Signals / Anomalies */}
           <div className="space-y-3">
