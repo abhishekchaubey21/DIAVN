@@ -72,6 +72,13 @@ export const FieldVerificationPanel: React.FC<FieldVerificationPanelProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            <Link
+              href={`/field/capture?caseId=${caseItem.case_number}`}
+              className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#4F6EF7] hover:bg-[#3E5DE6] text-white text-xs font-bold transition-all shadow-xs"
+            >
+              <Camera className="h-4 w-4" />
+              <span>Capture New Evidence</span>
+            </Link>
             <button
               onClick={() => setShowDossier(true)}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#991B1B] hover:bg-[#7F1D1D] text-white text-xs font-bold transition-all shadow-xs hover:shadow-sm cursor-pointer"
@@ -242,6 +249,13 @@ export const FieldVerificationPanel: React.FC<FieldVerificationPanelProps> = ({
                 DIAVN Phase 9 Workflow Protocol
               </span>
               <div className="flex items-center gap-2">
+                <Link
+                  href={`/field/capture?caseId=${caseItem.case_number}`}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#4F6EF7] hover:bg-[#3E5DE6] text-xs font-bold text-white transition-colors"
+                >
+                  <Camera className="h-3.5 w-3.5" />
+                  <span>Open Field Capture</span>
+                </Link>
                 <button
                   onClick={() => window.print()}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E5E9F2] hover:bg-[#F8FAFD] text-xs font-bold text-[#182033] transition-colors"
@@ -251,9 +265,9 @@ export const FieldVerificationPanel: React.FC<FieldVerificationPanelProps> = ({
                 </button>
                 <button
                   onClick={() => setShowDossier(false)}
-                  className="px-4 py-1.5 rounded-xl bg-[#4F6EF7] hover:bg-[#3E5DE6] text-xs font-bold text-white transition-colors"
+                  className="px-3.5 py-1.5 rounded-xl border border-[#E5E9F2] hover:bg-[#F8FAFD] text-xs font-bold text-[#68738A] hover:text-[#182033] transition-colors"
                 >
-                  Close Dossier
+                  Close
                 </button>
               </div>
             </div>
