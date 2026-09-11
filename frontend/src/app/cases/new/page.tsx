@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { MOCK_DEALERS, MOCK_CUSTOMERS } from '@/lib/mockData';
-import { uploadInvoiceDocument, getInvoiceDetails } from '@/lib/api';
+import { uploadInvoiceDocument, getInvoiceDetails, getDealers } from '@/lib/api';
+import { Dealer } from '@/types';
 import { InvoiceEvidenceCard } from '@/components/InvoiceEvidenceCard';
 import { 
   ArrowLeft, 
@@ -26,13 +26,23 @@ import {
 export default function NewCasePage() {
   const router = useRouter();
 
-  const [dealerId, setDealerId] = useState(MOCK_DEALERS[0].id);
-  const [customerId, setCustomerId] = useState(MOCK_CUSTOMERS[0].id);
+  const [dealersList, setDealersList] = useState<Dealer[]>([]);
+  const [dealerId, setDealerId] = useState('DLR-APX-01');
+  const [customerId, setCustomerId] = useState('CUST-2026-001');
   const [assetType, setAssetType] = useState('Solar Water Pump 5HP');
   const [claimedAddress, setClaimedAddress] = useState('Plot 12, Farm Sector B, Shirur, Pune, Maharashtra - 412218');
   const [loanAmount, setLoanAmount] = useState('195000');
   const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    getDealers().then(({ dealers }) => {
+      if (dealers && dealers.length > 0) {
+        setDealersList(dealers);
+        setDealerId(dealers[0].id || dealers[0].dealer_code);
+      }
+    });
+  }, []);
 
   // Upload & Extraction lifecycle states
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'extracting' | 'completed' | 'error'>('idle');
@@ -186,11 +196,19 @@ export default function NewCasePage() {
                   required
                   className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
                 >
-                  {MOCK_DEALERS.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.name} ({d.dealer_code}) - Tier: {d.risk_tier}
-                    </option>
-                  ))}
+                  {dealersList.length > 0 ? (
+                    dealersList.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name} ({d.dealer_code}) - Tier: {d.risk_tier}
+                      </option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="DLR-APX-01">Apex Solar Equipment Pvt Ltd (DLR-APX-01)</option>
+                      <option value="DLR-SUN-02">SunPower Retail & Infra Solutions (DLR-SUN-02)</option>
+                      <option value="DLR-RAD-03">Radiant AgroTech Distributions (DLR-RAD-03)</option>
+                    </>
+                  )}
                 </select>
               </div>
 
@@ -204,11 +222,11 @@ export default function NewCasePage() {
                   required
                   className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
                 >
-                  {MOCK_CUSTOMERS.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.full_name} ({c.customer_code}) - {c.city}, {c.state}
-                    </option>
-                  ))}
+                  <option value="CUST-2026-001">Rajesh Sharma (CUST-2026-001) - Pune, Maharashtra</option>
+                  <option value="CUST-2026-002">Amit Verma (CUST-2026-002) - Baramati, Maharashtra</option>
+                  <option value="CUST-2026-003">Meera Patel (CUST-2026-003) - Shirur, Maharashtra</option>
+                  <option value="CUST-2026-004">Kavita Reddy (CUST-2026-004) - Bengaluru, Karnataka</option>
+                  <option value="CUST-2026-005">GreenFields Agri Enterprises (CUST-2026-005) - Nashik, Maharashtra</option>
                 </select>
               </div>
             </div>

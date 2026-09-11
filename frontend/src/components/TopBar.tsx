@@ -53,12 +53,16 @@ export const TopBar: React.FC = () => {
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">
-        {/* Sandbox Status Pill */}
-        <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#F6F8FC] border border-[#E5E9F2] text-[11px] font-medium text-[#68738A]">
-          <span className="h-2 w-2 rounded-full bg-[#10B981]" />
-          <span>Deterministic Node</span>
-          <span className="text-[#8E99AD]">|</span>
-          <span className="text-[#B45309] font-bold text-[10px] uppercase tracking-wider">Sandbox</span>
+        {/* Explicit Data Mode Indicator */}
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#F6F8FC] border border-[#E5E9F2] text-[11px] font-medium text-[#182033]">
+          <span className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />
+          <span className="font-bold text-[10px] uppercase tracking-wider text-[#065F46] bg-[#ECFDF5] px-2 py-0.5 rounded-md border border-[#A7F3D0]">
+            DEMO DATASET • Synthetic Data
+          </span>
+          <span className="text-[#8E99AD] hidden lg:inline">|</span>
+          <span className="text-[#68738A] text-[10px] hidden lg:inline font-mono">
+            FastAPI :8000
+          </span>
         </div>
 
         {/* Demo Scenario Drawer Component */}

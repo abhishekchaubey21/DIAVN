@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { Dealer, Case } from '@/types';
-import { MOCK_RISK_SCORES } from '@/lib/mockData';
 import { 
   Building2, 
   ArrowUpRight, 
@@ -19,17 +18,15 @@ interface DealerRiskOverviewProps {
 }
 
 export function DealerRiskOverview({ dealers = [], cases = [] }: DealerRiskOverviewProps) {
-  // Transparent case-level aggregation derived from authoritative Phase 6 case risk scores
+  // Transparent case-level aggregation derived from authoritative case risk scores
   const dealerStats = dealers.map((d) => {
     // Group cases belonging to this dealer
     const dealerCases = cases.filter((c) => c.dealer_id === d.id || c.dealer_id === d.dealer_code);
 
     // Derive authoritative case scores for each case
     const caseScores = dealerCases.map((c) => {
-      const authScore = MOCK_RISK_SCORES[c.case_number]?.overall_score;
-      if (authScore !== undefined) return { caseItem: c, score: authScore };
-      const fallbackScore = c.risk_level === 'critical' ? 95 : c.risk_level === 'high' ? 82 : c.risk_level === 'medium' ? 50 : 8;
-      return { caseItem: c, score: fallbackScore };
+      const score = (c as any).risk_score ?? (c.risk_level === 'critical' ? 95 : c.risk_level === 'high' ? 82 : c.risk_level === 'medium' ? 50 : 8);
+      return { caseItem: c, score };
     });
 
     // Aggregate: peak case risk score and top active signal

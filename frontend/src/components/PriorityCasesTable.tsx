@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Case } from '@/types';
 import { StatusBadge } from './StatusBadge';
 import { ArrowUpRight, ChevronRight, Layers } from 'lucide-react';
-import { MOCK_RISK_SCORES } from '@/lib/mockData';
 
 interface PriorityCasesTableProps {
   cases: Case[];
@@ -15,8 +14,8 @@ interface PriorityCasesTableProps {
 export function PriorityCasesTable({ cases = [], limit = 6 }: PriorityCasesTableProps) {
   // Sort priority cases: Critical & High risk first, then flagged / verification_pending
   const sortedCases = [...cases].sort((a, b) => {
-    const scoreA = MOCK_RISK_SCORES[a.case_number]?.overall_score ?? (a.risk_level === 'critical' ? 95 : a.risk_level === 'high' ? 82 : a.risk_level === 'medium' ? 50 : 10);
-    const scoreB = MOCK_RISK_SCORES[b.case_number]?.overall_score ?? (b.risk_level === 'critical' ? 95 : b.risk_level === 'high' ? 82 : b.risk_level === 'medium' ? 50 : 10);
+    const scoreA = (a as any).risk_score ?? (a.risk_level === 'critical' ? 95 : a.risk_level === 'high' ? 82 : a.risk_level === 'medium' ? 50 : 10);
+    const scoreB = (b as any).risk_score ?? (b.risk_level === 'critical' ? 95 : b.risk_level === 'high' ? 82 : b.risk_level === 'medium' ? 50 : 10);
     return scoreB - scoreA;
   });
 
@@ -73,7 +72,7 @@ export function PriorityCasesTable({ cases = [], limit = 6 }: PriorityCasesTable
           </thead>
           <tbody className="divide-y divide-[#F1F4FA] text-xs">
             {displayCases.map((c) => {
-              const score = MOCK_RISK_SCORES[c.case_number]?.overall_score ?? (c.risk_level === 'critical' ? 95 : c.risk_level === 'high' ? 82 : c.risk_level === 'medium' ? 50 : 10);
+              const score = (c as any).risk_score ?? (c.risk_level === 'critical' ? 95 : c.risk_level === 'high' ? 82 : c.risk_level === 'medium' ? 50 : 10);
               const topSignal = getTopSignal(c);
 
               return (

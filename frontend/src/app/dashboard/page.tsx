@@ -21,7 +21,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
   // Parallel fetch for portfolio cases and registered dealers
-  const [{ cases, isMock: casesAreMock }, { dealers, isMock: dealersAreMock }] = await Promise.all([
+  const [{ cases, isMock: casesAreMock, error: casesError }, { dealers, isMock: dealersAreMock, error: dealersError }] = await Promise.all([
     getCases(),
     getDealers()
   ]);
@@ -36,11 +36,24 @@ export default async function DashboardPage() {
     (c) => c.status === 'under_review' || c.status === 'verification_pending' || c.status === 'submitted'
   );
   const flaggedEvidenceCount = cases.filter(
-    (c) => c.case_number === 'CAS-2026-003' || c.case_number === 'CAS-2026-005' || c.case_number === 'CAS-2026-007' || c.case_number === 'CAS-2026-010'
+    (c) => c.risk_level === 'high' || c.risk_level === 'critical' || c.status === 'flagged' || (c.notes && c.notes.length > 0)
   ).length;
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto pb-12">
+      {/* Backend API Error Banner if offline */}
+      {(casesError || dealersError) && (
+        <div className="rounded-2xl border border-[#FECACA] bg-[#FEF2F2] p-4 text-xs text-[#991B1B] flex items-center justify-between">
+          <div className="flex items-center gap-2 font-medium">
+            <ShieldAlert className="h-4 w-4 shrink-0 text-[#EF4444]" />
+            <span>{casesError || dealersError}</span>
+          </div>
+          <span className="font-mono text-[10px] bg-white px-2.5 py-1 rounded-md border border-[#FECACA]">
+            OFFLINE MODE
+          </span>
+        </div>
+      )}
+
       {/* 1. Page Header */}
       <div className="rounded-2xl border border-[#E5E9F2] bg-white p-5 sm:p-6 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -49,8 +62,12 @@ export default async function DashboardPage() {
               <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#4F6EF7]/10 text-[#4F6EF7] border border-[#4F6EF7]/20">
                 PS #1: DIAVN Underwriting OS
               </span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 text-[#68738A] border border-[#E5E9F2]">
-                SANDBOX MODE • Synthetic Benchmark
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                casesAreMock 
+                  ? 'bg-amber-50 text-amber-800 border-amber-200 font-bold' 
+                  : 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold'
+              }`}>
+                {casesAreMock ? 'DEMO DATASET • Synthetic Data' : 'LIVE DATABASE • Supabase Connected'}
               </span>
             </div>
             <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-[#182033]">

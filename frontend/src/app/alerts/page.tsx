@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { getCases } from '@/lib/api';
-import { MOCK_RISK_SCORES, MOCK_RISK_SIGNALS, MOCK_VERIFICATION_TASKS } from '@/lib/mockData';
 import { StatusBadge } from '@/components/StatusBadge';
 import { 
   ShieldAlert, 
@@ -24,7 +23,7 @@ interface AlertsPageProps {
 }
 
 export default async function AlertsPage({ searchParams }: AlertsPageProps) {
-  const { cases, isMock } = await getCases();
+  const { cases, isMock, error } = await getCases();
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const currentFilter = resolvedSearchParams?.filter || 'all';
 
@@ -37,8 +36,8 @@ export default async function AlertsPage({ searchParams }: AlertsPageProps) {
 
   // Sort: Highest risk first (by score or risk severity)
   const sortedCases = [...actionableCases].sort((a, b) => {
-    const scoreA = MOCK_RISK_SCORES[a.case_number]?.overall_score ?? (a.risk_level === 'critical' ? 95 : a.risk_level === 'high' ? 85 : a.risk_level === 'medium' ? 50 : 10);
-    const scoreB = MOCK_RISK_SCORES[b.case_number]?.overall_score ?? (b.risk_level === 'critical' ? 95 : b.risk_level === 'high' ? 85 : b.risk_level === 'medium' ? 50 : 10);
+    const scoreA = (a as any).risk_score ?? (a.risk_level === 'critical' ? 95 : a.risk_level === 'high' ? 85 : a.risk_level === 'medium' ? 50 : 10);
+    const scoreB = (b as any).risk_score ?? (b.risk_level === 'critical' ? 95 : b.risk_level === 'high' ? 85 : b.risk_level === 'medium' ? 50 : 10);
     return scoreB - scoreA;
   });
 
@@ -153,10 +152,7 @@ export default async function AlertsPage({ searchParams }: AlertsPageProps) {
       ) : (
         <div className="space-y-4">
           {filteredCases.map((c) => {
-            const riskData = MOCK_RISK_SCORES[c.case_number] || MOCK_RISK_SCORES[c.id];
-            const score = riskData?.overall_score ?? (c.risk_level === 'critical' ? 95 : c.risk_level === 'high' ? 85 : c.risk_level === 'medium' ? 50 : 10);
-            const signals = MOCK_RISK_SIGNALS[c.case_number] || MOCK_RISK_SIGNALS[c.id] || [];
-            const tasks = MOCK_VERIFICATION_TASKS[c.case_number] || MOCK_VERIFICATION_TASKS[c.id] || [];
+            const score = (c as any).risk_score ?? (c.risk_level === 'critical' ? 95 : c.risk_level === 'high' ? 85 : c.risk_level === 'medium' ? 50 : 10);
             const isHigh = c.risk_level === 'high' || c.risk_level === 'critical';
 
             const containerStyles = isHigh
@@ -226,20 +222,10 @@ export default async function AlertsPage({ searchParams }: AlertsPageProps) {
                     <span className="font-bold text-[11px] uppercase tracking-wider text-[#68738A] block">
                       Detected Verification Signals
                     </span>
-                    {signals.length > 0 ? (
-                      <div className="space-y-1.5">
-                        {signals.map((sig) => (
-                          <div key={sig.id} className="flex items-start gap-2 text-[#182033]">
-                            <span className="h-1.5 w-1.5 rounded-full bg-[#EF4444] mt-1.5 shrink-0" />
-                            <p className="leading-snug">{sig.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-[#68738A] leading-relaxed">
-                        {riskData?.summary_reasoning || c.notes || 'Anomalous telemetry or pricing variance recorded.'}
-                      </p>
-                    )}
+                    <div className="flex items-start gap-2 text-[#182033]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#EF4444] mt-1.5 shrink-0" />
+                      <p className="leading-snug">{c.notes || (isHigh ? 'Cross-case duplicate serial and perceptual image reuse detected.' : 'Underwriting price benchmark variance identified.')}</p>
+                    </div>
                   </div>
 
                   {/* Right: Recommended Operational Action & Tasks */}
@@ -252,26 +238,13 @@ export default async function AlertsPage({ searchParams }: AlertsPageProps) {
                         <CheckSquare2 className="h-4 w-4 text-[#991B1B]" />
                         <span>
                           {isHigh
-                            ? 'Field Verification Recommended — Multi-anomaly stack identified'
-                            : 'Desk Audit / Invoice Price Justification Required'}
+                            ? 'Field Verification Recommended — Physical site visit required'
+                            : 'Desk Audit / Invoice Benchmark Review Required'}
                         </span>
                       </div>
-                      {tasks.length > 0 ? (
-                        <div className="text-[#68738A] space-y-1 pt-1">
-                          {tasks.map((t) => (
-                            <div key={t.id} className="flex items-center justify-between text-[11px]">
-                              <span>• {t.instructions}</span>
-                              <span className="font-bold uppercase text-[10px] text-[#92400E] px-1.5 py-0.5 rounded bg-[#FFFBEB] border border-[#FDE68A]">
-                                {t.status}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-[#68738A] text-[11px]">
-                          Automated n8n webhook notification dispatched for risk triage.
-                        </p>
-                      )}
+                      <p className="text-[#68738A] text-[11px]">
+                        Task status: <strong className="uppercase text-[#92400E] font-mono">{c.status}</strong> • Notification dispatched to underwriting review queue.
+                      </p>
                     </div>
                   </div>
                 </div>

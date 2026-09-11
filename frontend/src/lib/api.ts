@@ -1,5 +1,5 @@
 import { Case, Dealer, RiskScore, RiskSignal, InvoiceVerificationSummary } from '@/types';
-import { MOCK_CASES, MOCK_DEALERS, MOCK_RISK_SCORES, MOCK_RISK_SIGNALS } from './mockData';
+import { MOCK_CASES, MOCK_DEALERS } from './mockData';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -13,62 +13,66 @@ export async function fetchHealthCheck() {
   }
 }
 
-export async function getCases(): Promise<{ cases: Case[]; isMock: boolean }> {
+export async function getCases(): Promise<{ cases: Case[]; isMock: boolean; error?: string | null }> {
   try {
     const res = await fetch(`${API_BASE_URL}/cases`, { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
-        return { cases: data, isMock: false };
+        return { cases: data, isMock: false, error: null };
       }
     }
   } catch (err) {
-    console.warn('Backend unavailable, falling back to synthetic dataset:', err);
+    console.warn('Backend API /cases unreachable, reading synthetic demo dataset seed:', err);
   }
-  return { cases: MOCK_CASES, isMock: true };
+  // Authoritative Demo Dataset Seed (CAS-2026-001 to CAS-2026-010)
+  return { cases: MOCK_CASES, isMock: true, error: null };
 }
 
-export async function getCaseById(id: string): Promise<{ caseItem: Case | null; isMock: boolean }> {
+export async function getCaseById(id: string): Promise<{ caseItem: Case | null; isMock: boolean; error?: string | null }> {
   try {
     const res = await fetch(`${API_BASE_URL}/cases/${id}`, { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
-      return { caseItem: data, isMock: false };
+      return { caseItem: data, isMock: false, error: null };
     }
   } catch (err) {
-    console.warn(`Backend fetch for case ${id} failed, using synthetic mock:`, err);
+    console.warn(`Backend API /cases/${id} query unreachable, checking demo dataset seed:`, err);
   }
+  // Authoritative Demo Dataset Seed
   const found = MOCK_CASES.find((c) => c.id === id || c.case_number === id) || null;
-  return { caseItem: found, isMock: true };
+  return { caseItem: found, isMock: true, error: found ? null : `Case #${id} not found in database or demo dataset.` };
 }
 
-export async function getDealers(): Promise<{ dealers: Dealer[]; isMock: boolean }> {
+export async function getDealers(): Promise<{ dealers: Dealer[]; isMock: boolean; error?: string | null }> {
   try {
     const res = await fetch(`${API_BASE_URL}/dealers`, { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
-        return { dealers: data, isMock: false };
+        return { dealers: data, isMock: false, error: null };
       }
     }
   } catch (err) {
-    console.warn('Backend fetch for dealers failed, using synthetic mock:', err);
+    console.warn('Backend API /dealers unreachable, reading synthetic demo dataset seed:', err);
   }
-  return { dealers: MOCK_DEALERS, isMock: true };
+  // Authoritative Demo Dataset Seed
+  return { dealers: MOCK_DEALERS, isMock: true, error: null };
 }
 
-export async function getDealerById(id: string): Promise<{ dealer: Dealer | null; isMock: boolean }> {
+export async function getDealerById(id: string): Promise<{ dealer: Dealer | null; isMock: boolean; error?: string | null }> {
   try {
     const res = await fetch(`${API_BASE_URL}/dealers/${id}`, { cache: 'no-store' });
     if (res.ok) {
       const data = await res.json();
-      return { dealer: data, isMock: false };
+      return { dealer: data, isMock: false, error: null };
     }
   } catch (err) {
-    console.warn(`Backend fetch for dealer ${id} failed:`, err);
+    console.warn(`Backend API /dealers/${id} query unreachable, checking demo dataset seed:`, err);
   }
+  // Authoritative Demo Dataset Seed
   const found = MOCK_DEALERS.find((d) => d.id === id || d.dealer_code === id) || null;
-  return { dealer: found, isMock: true };
+  return { dealer: found, isMock: true, error: found ? null : `Dealer #${id} not found in database or demo dataset.` };
 }
 
 export interface InvoiceUploadResult {

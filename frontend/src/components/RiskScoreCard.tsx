@@ -37,90 +37,6 @@ export const RiskScoreCard: React.FC<RiskScoreCardProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
-  // Fallback synthetic score calculation for demo if backend not yet queried
-  const currentScore: RiskScore = score || {
-    id: `RSK-${caseId}`,
-    case_id: caseId,
-    overall_score: caseScenarioId === 'CAS-2026-007' ? 92 : caseScenarioId === 'CAS-2026-005' ? 25 : caseScenarioId === 'CAS-2026-003' ? 12 : caseScenarioId === 'CAS-2026-002' ? 20 : 0,
-    raw_score: caseScenarioId === 'CAS-2026-007' ? 102 : caseScenarioId === 'CAS-2026-005' ? 35 : caseScenarioId === 'CAS-2026-003' ? 12 : caseScenarioId === 'CAS-2026-002' ? 20 : 0,
-    risk_level: caseScenarioId === 'CAS-2026-007' ? 'high' : 'low',
-    risk_band: caseScenarioId === 'CAS-2026-007' ? 'HIGH' : 'LOW',
-    policy_version: 'risk-v1',
-    recommended_action: caseScenarioId === 'CAS-2026-007' ? 'Field verification recommended.' : caseScenarioId === 'CAS-2026-005' ? 'Additional document/evidence review recommended.' : 'No immediate additional verification indicated by the configured DIAVN rules.',
-    price_anomaly_score: caseScenarioId === 'CAS-2026-002' || caseScenarioId === 'CAS-2026-007' ? 80 : 0,
-    serial_anomaly_score: caseScenarioId === 'CAS-2026-007' ? 100 : 0,
-    image_anomaly_score: caseScenarioId === 'CAS-2026-005' || caseScenarioId === 'CAS-2026-007' ? 100 : caseScenarioId === 'CAS-2026-003' ? 48 : 0,
-    dealer_network_score: 0,
-    calculated_at: new Date().toISOString(),
-    summary_reasoning: caseScenarioId === 'CAS-2026-007'
-      ? 'Deterministic verification assessment (risk-v1): Overall score 92/100 [HIGH]. Active risk contributions: +35 Duplicate Serial, +20 Invoice Price Anomaly, +12 Gps Mismatch, +25 Image Reuse (capped from +35). Action: Field verification recommended.'
-      : caseScenarioId === 'CAS-2026-005'
-        ? 'Deterministic verification assessment (risk-v1): Overall score 25/100 [LOW]. Active risk contributions: +25 Image Reuse (pHash +20, Embedding +15 capped to 25). Action: Additional document/evidence review recommended.'
-        : 'No active verification anomalies detected under policy risk-v1. Baseline evidence-based verification risk is LOW (0/100). Action: No immediate additional verification indicated by the configured DIAVN rules.',
-    components: caseScenarioId === 'CAS-2026-007' ? [
-      {
-        signal_type: 'DUPLICATE_SERIAL_NUMBER',
-        group: 'SERIAL',
-        source: 'SERIAL_ENGINE',
-        severity: 'critical',
-        policy_weight: 35,
-        effective_contribution: 35,
-        is_group_capped: false,
-        group_cap_applied: undefined,
-        description: 'Pump serial ASP-2025-99881 matches an active operational loan.',
-        evidence: { duplicate_case_id: 'CAS-2026-001', matching_serial: 'ASP-2025-99881' }
-      },
-      {
-        signal_type: 'INVOICE_PRICE_ANOMALY',
-        group: 'PRICE',
-        source: 'INVOICE_ENGINE',
-        severity: 'high',
-        policy_weight: 20,
-        effective_contribution: 20,
-        is_group_capped: false,
-        group_cap_applied: undefined,
-        description: 'Invoice unit price ₹75,000 exceeds regional market benchmark by +44.2%.',
-        evidence: { invoiced_unit_price: 75000, category_avg_price: 52000, variance_pct: 44.2 }
-      },
-      {
-        signal_type: 'GPS_MISMATCH',
-        group: 'IMAGE',
-        source: 'IMAGE_FORENSICS',
-        severity: 'medium',
-        policy_weight: 12,
-        effective_contribution: 12,
-        is_group_capped: false,
-        group_cap_applied: undefined,
-        description: 'Installation photo location (234.8 km) exceeds 1.0 km threshold from claimed address.',
-        evidence: { distance_km: 234.8, threshold_km: 1.0 }
-      },
-      {
-        signal_type: 'PHASH_EXACT_MATCH',
-        group: 'IMAGE',
-        source: 'IMAGE_FORENSICS',
-        severity: 'high',
-        policy_weight: 20,
-        effective_contribution: 13,
-        is_group_capped: true,
-        group_cap_applied: 25,
-        description: 'Perceptual pHash exact match (hamming distance 0) against existing case CAS-2026-001.',
-        evidence: { matching_image_id: 'IMG-001', hamming_distance: 0 }
-      },
-      {
-        signal_type: 'VISUAL_SIMILARITY_MATCH',
-        group: 'IMAGE',
-        source: 'IMAGE_EMBEDDINGS',
-        severity: 'high',
-        policy_weight: 15,
-        effective_contribution: 12,
-        is_group_capped: true,
-        group_cap_applied: 25,
-        description: 'ResNet-50 visual embedding cosine similarity 0.9945 matches prior installation photos.',
-        evidence: { cosine_similarity: 0.9945, similarity_threshold: 0.90 }
-      }
-    ] : []
-  };
-
   const handleRecalculate = async () => {
     setLoading(true);
     try {
@@ -134,6 +50,38 @@ export const RiskScoreCard: React.FC<RiskScoreCardProps> = ({
       setLoading(false);
     }
   };
+
+  if (!score) {
+    return (
+      <div className="rounded-2xl border border-[#E5E9F2] bg-white p-6 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E5E9F2] pb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-[#4F6EF7]/10 text-[#4F6EF7] flex items-center justify-center">
+              <ShieldCheck className="h-4 w-4" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-[#182033]">Deterministic Risk Assessment</h3>
+              <p className="text-xs text-[#68738A]">Phase 6 Policy Engine • Case #{caseId}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleRecalculate}
+            disabled={loading}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#4F6EF7] hover:bg-[#3E5DE6] text-white text-xs font-bold transition-all shadow-xs disabled:opacity-50"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <span>{loading ? 'Evaluating...' : 'Run Risk Calculation'}</span>
+          </button>
+        </div>
+        <div className="p-4 rounded-xl bg-[#F8FAFD] border border-[#E5E9F2] text-xs text-[#68738A] flex items-center gap-3">
+          <Info className="h-4 w-4 text-[#4F6EF7] shrink-0" />
+          <span>No deterministic risk score is currently recorded for this case. Execute the Phase 6 risk engine to generate an auditable score.</span>
+        </div>
+      </div>
+    );
+  }
+
+  const currentScore: RiskScore = score;
 
   const isHigh = currentScore.risk_band === 'HIGH' || currentScore.overall_score >= 70;
   const isMed = currentScore.risk_band === 'MEDIUM' || (currentScore.overall_score >= 30 && currentScore.overall_score < 70);
