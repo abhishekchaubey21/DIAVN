@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Navbar } from '@/components/Navbar';
+import { Sidebar } from '@/components/Sidebar';
+import { TopBar } from '@/components/TopBar';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,27 +17,37 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-slate-950 text-slate-100 min-h-screen antialiased flex flex-col`}>
-        {/* Hackathon MVP / Synthetic Benchmark Mode Banner */}
-        <div className="bg-gradient-to-r from-amber-500/10 via-sky-500/10 to-indigo-500/10 border-b border-amber-500/20 px-4 py-1.5 text-xs text-slate-300 flex items-center justify-between">
-          <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-semibold text-[10px] tracking-wide uppercase">
-              Sandbox Mode
-            </span>
-            <span>DIAVN Verification Sandbox — Security Hardened Hackathon MVP (Synthetic Benchmark Data)</span>
-          </div>
+    <html lang="en">
+      <body className={`${inter.className} bg-[#F6F8FC] text-[#182033] min-h-screen antialiased flex flex-col lg:flex-row`}>
+        {/* Persistent Enterprise Sidebar */}
+        <Sidebar />
+
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Persistent Top Navigation Bar */}
+          <TopBar />
+
+          {/* Page Body */}
+          <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            {children}
+          </main>
+
+          {/* Minimal Enterprise Footer */}
+          <footer className="border-t border-[#E5E9F2] bg-white py-4 text-xs text-[#8E99AD]">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-[#182033]">DIAVN Platform</span>
+                <span>•</span>
+                <span>Deterministic Underwriting & Asset Integrity</span>
+              </div>
+              <div className="flex items-center gap-3 font-mono text-[11px]">
+                <span>Phase 10 Hardened MVP</span>
+                <span>•</span>
+                <span className="text-[#B45309] font-bold">Sandbox Mode</span>
+              </div>
+            </div>
+          </footer>
         </div>
-        <Navbar />
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {children}
-        </main>
-        <footer className="border-t border-slate-800/80 bg-slate-950/60 py-6 text-center text-xs text-slate-500">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span>DIAVN Verification Platform • Phase 10 Hardened MVP</span>
-            <span>Deterministic Underwriting & Integrity Verification</span>
-          </div>
-        </footer>
       </body>
     </html>
   );

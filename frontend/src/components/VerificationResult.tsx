@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, ShieldAlert, CheckCircle, Clock, AlertTriangle, Play } from 'lucide-react';
+import { Shield, ShieldAlert, CheckCircle, Clock, AlertTriangle, Layers } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
 
 interface VerificationResultProps {
@@ -13,49 +13,53 @@ export const VerificationResult: React.FC<VerificationResultProps> = ({
   riskLevel,
   caseNumber,
 }) => {
+  const isHigh = riskLevel === 'high' || riskLevel === 'critical';
+  const isMed = riskLevel === 'medium';
+
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-md">
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800">
+    <div className="rounded-2xl border border-[#E5E9F2] bg-white p-6 sm:p-7 shadow-xs space-y-6">
+      {/* Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-5 border-b border-[#E5E9F2]">
         <div>
-          <span className="text-xs uppercase font-mono tracking-wider text-slate-400">
-            Case Verification Status
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8E99AD] block">
+            Underwriting Case Status
           </span>
-          <div className="flex items-center gap-2 mt-1">
-            <h3 className="text-xl font-bold text-slate-100 font-mono">{caseNumber}</h3>
+          <div className="flex items-center gap-3 mt-1">
+            <h2 className="text-2xl font-extrabold text-[#182033] font-mono tracking-tight">{caseNumber}</h2>
             <StatusBadge type="case_status" value={status} />
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <StatusBadge type="risk" value={riskLevel} />
+        <div className="flex items-center gap-3">
+          <StatusBadge type="risk" value={riskLevel} size="md" />
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-        <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-          <div className="text-[11px] uppercase font-semibold text-slate-400">Invoice Extraction</div>
-          <div className="text-xs font-mono mt-1 text-slate-300">Phase 1 Staged</div>
+      {/* 4 Pipeline Stage Badges */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+        <div className="p-3.5 rounded-xl bg-[#F8FAFD] border border-[#E5E9F2]">
+          <div className="text-[10px] uppercase font-bold text-[#8E99AD] tracking-wider">Invoice OCR & Pricing</div>
+          <div className="text-xs font-mono font-bold mt-1 text-[#182033]">Phase 2 & 3 Verified</div>
         </div>
-        <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-          <div className="text-[11px] uppercase font-semibold text-slate-400">EXIF & Geo-Tag</div>
-          <div className="text-xs font-mono mt-1 text-slate-300">Phase 1 Staged</div>
+        <div className="p-3.5 rounded-xl bg-[#F8FAFD] border border-[#E5E9F2]">
+          <div className="text-[10px] uppercase font-bold text-[#8E99AD] tracking-wider">EXIF & Geo-Tag</div>
+          <div className="text-xs font-mono font-bold mt-1 text-[#182033]">Phase 4 Audited</div>
         </div>
-        <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-          <div className="text-[11px] uppercase font-semibold text-slate-400">Serial Registry</div>
-          <div className="text-xs font-mono mt-1 text-slate-300">Phase 1 Staged</div>
+        <div className="p-3.5 rounded-xl bg-[#F8FAFD] border border-[#E5E9F2]">
+          <div className="text-[10px] uppercase font-bold text-[#8E99AD] tracking-wider">Visual Embeddings</div>
+          <div className="text-xs font-mono font-bold mt-1 text-[#182033]">Phase 5 Similarity</div>
         </div>
-        <div className="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
-          <div className="text-[11px] uppercase font-semibold text-slate-400">Price Benchmark</div>
-          <div className="text-xs font-mono mt-1 text-slate-300">Phase 1 Staged</div>
+        <div className="p-3.5 rounded-xl bg-[#F8FAFD] border border-[#E5E9F2]">
+          <div className="text-[10px] uppercase font-bold text-[#8E99AD] tracking-wider">Entity Link Graph</div>
+          <div className="text-xs font-mono font-bold mt-1 text-[#182033]">Phase 7 Analyzed</div>
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-3 p-3 bg-indigo-950/20 border border-indigo-500/20 rounded-lg text-xs text-indigo-300">
-        <div className="flex items-center gap-2">
-          <Clock className="h-4 w-4 text-indigo-400 shrink-0" />
-          <span>
-            Automated verification pipeline integration will run directly in subsequent phases via Free Gemini API and local CV.
-          </span>
-        </div>
+      {/* Orchestration Status Bar */}
+      <div className="flex items-center gap-2.5 p-3.5 bg-[#F6F8FC] border border-[#E5E9F2] rounded-xl text-xs text-[#68738A]">
+        <Clock className="h-4 w-4 text-[#4F6EF7] shrink-0" />
+        <span>
+          Automated multi-factor underwriting pipeline executing deterministic verification across OCR, perceptual hash, visual similarity, and entity link graphs.
+        </span>
       </div>
     </div>
   );

@@ -24,7 +24,8 @@ import {
   CheckSquare2,
   Receipt,
   Layers,
-  Cpu
+  ChevronRight,
+  Info
 } from 'lucide-react';
 
 interface CaseDetailPageProps {
@@ -77,16 +78,16 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
       ];
 
   return (
-    <div className="space-y-7 max-w-6xl mx-auto">
+    <div className="space-y-8 max-w-7xl mx-auto">
       {/* Breadcrumb Navigation */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <Link href="/cases" className="hover:text-slate-200 flex items-center gap-1">
+        <div className="flex items-center gap-2 text-xs text-[#8E99AD]">
+          <Link href="/cases" className="hover:text-[#182033] flex items-center gap-1 font-semibold transition-colors">
             <ArrowLeft className="h-3.5 w-3.5" />
-            Cases Queue
+            <span>Cases Queue</span>
           </Link>
-          <span>/</span>
-          <span className="text-slate-200 font-mono">{caseItem.case_number}</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="text-[#182033] font-bold font-mono">{caseItem.case_number}</span>
         </div>
 
         {isMock && <StatusBadge type="data_source" value="mock" size="sm" />}
@@ -105,68 +106,68 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
         caseScenarioId={caseItem.case_number}
       />
 
-      {/* Primary Grid: Metadata & Risk Assessment */}
+      {/* Primary Grid: Metadata & Underwriting Details */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Metadata Details */}
+        {/* Left Column: Underwriting Parameters & Tasks */}
         <div className="space-y-6">
-          <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-3 flex items-center gap-2">
-              <Layers className="h-4 w-4 text-indigo-400" />
-              Underwriting Parameters
+          <div className="rounded-2xl border border-[#E5E9F2] bg-white p-6 shadow-xs space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#182033] border-b border-[#E5E9F2] pb-3 flex items-center gap-2">
+              <Layers className="h-4 w-4 text-[#4F6EF7]" />
+              <span>Underwriting Parameters</span>
             </h3>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3.5 text-xs">
               <div>
-                <span className="text-slate-500 block">Equipment Model</span>
-                <span className="text-slate-200 font-medium font-mono text-sm">{caseItem.asset_type}</span>
+                <span className="text-[#8E99AD] font-bold uppercase text-[10px] tracking-wider block">Equipment Model</span>
+                <span className="text-[#182033] font-bold font-mono text-sm mt-0.5 block">{caseItem.asset_type}</span>
               </div>
 
               <div>
-                <span className="text-slate-500 block">Loan Disbursement Amount</span>
-                <span className="text-slate-100 font-mono font-bold text-base">
+                <span className="text-[#8E99AD] font-bold uppercase text-[10px] tracking-wider block">Loan Disbursement Amount</span>
+                <span className="text-[#182033] font-mono font-extrabold text-lg mt-0.5 block">
                   ₹{caseItem.loan_amount.toLocaleString('en-IN')}
                 </span>
               </div>
 
-              <div className="pt-2 border-t border-slate-800">
-                <span className="text-slate-500 block flex items-center gap-1">
-                  <Building2 className="h-3.5 w-3.5 text-cyan-400" />
-                  Dealer
+              <div className="pt-3 border-t border-[#E5E9F2]">
+                <span className="text-[#8E99AD] font-bold uppercase text-[10px] tracking-wider block flex items-center gap-1">
+                  <Building2 className="h-3.5 w-3.5 text-[#4F6EF7]" />
+                  <span>Submitting Dealer</span>
                 </span>
                 <Link
                   href={`/dealers/${caseItem.dealer_id}`}
-                  className="text-indigo-400 hover:text-indigo-300 font-medium mt-0.5 block"
+                  className="text-[#4F6EF7] hover:text-[#3E5DE6] font-bold mt-0.5 block"
                 >
                   {caseItem.dealer_name || caseItem.dealer_id}
                 </Link>
               </div>
 
-              <div className="pt-2 border-t border-slate-800">
-                <span className="text-slate-500 block flex items-center gap-1">
-                  <User className="h-3.5 w-3.5 text-emerald-400" />
-                  Borrower / Customer
+              <div className="pt-3 border-t border-[#E5E9F2]">
+                <span className="text-[#8E99AD] font-bold uppercase text-[10px] tracking-wider block flex items-center gap-1">
+                  <User className="h-3.5 w-3.5 text-[#10B981]" />
+                  <span>Borrower / Customer</span>
                 </span>
-                <span className="text-slate-200 font-medium mt-0.5 block">
+                <span className="text-[#182033] font-semibold mt-0.5 block">
                   {caseItem.customer_name || caseItem.customer_id}
                 </span>
               </div>
 
-              <div className="pt-2 border-t border-slate-800">
-                <span className="text-slate-500 block flex items-center gap-1">
-                  <MapPin className="h-3.5 w-3.5 text-amber-400" />
-                  Claimed Installation Location
+              <div className="pt-3 border-t border-[#E5E9F2]">
+                <span className="text-[#8E99AD] font-bold uppercase text-[10px] tracking-wider block flex items-center gap-1">
+                  <MapPin className="h-3.5 w-3.5 text-[#F59E0B]" />
+                  <span>Claimed Installation Location</span>
                 </span>
-                <p className="text-slate-300 mt-0.5 leading-relaxed">
+                <p className="text-[#68738A] mt-0.5 leading-relaxed">
                   {caseItem.claimed_installation_address}
                 </p>
               </div>
 
-              <div className="pt-2 border-t border-slate-800">
-                <span className="text-slate-500 block flex items-center gap-1">
-                  <Calendar className="h-3.5 w-3.5 text-slate-400" />
-                  Case Inception Date
+              <div className="pt-3 border-t border-[#E5E9F2]">
+                <span className="text-[#8E99AD] font-bold uppercase text-[10px] tracking-wider block flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5 text-[#8E99AD]" />
+                  <span>Case Inception Date</span>
                 </span>
-                <span className="text-slate-400 font-mono">
+                <span className="text-[#182033] font-mono font-medium mt-0.5 block">
                   {new Date(caseItem.created_at).toLocaleDateString()}
                 </span>
               </div>
@@ -175,24 +176,24 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
           {/* Verification Tasks */}
           {verificationTasks.length > 0 && (
-            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 space-y-3">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-3 flex items-center gap-2">
-                <CheckSquare2 className="h-4 w-4 text-amber-400" />
-                Actionable Verification Tasks
+            <div className="rounded-2xl border border-[#E5E9F2] bg-white p-6 shadow-xs space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#182033] border-b border-[#E5E9F2] pb-3 flex items-center gap-2">
+                <CheckSquare2 className="h-4 w-4 text-[#F59E0B]" />
+                <span>Actionable Verification Tasks</span>
               </h3>
               {verificationTasks.map((t) => (
-                <div key={t.id} className="p-3 bg-slate-950/60 rounded-lg border border-slate-800 text-xs space-y-1.5">
+                <div key={t.id} className="p-3.5 bg-[#F8FAFD] rounded-xl border border-[#E5E9F2] text-xs space-y-1.5">
                   <div className="flex justify-between items-center">
-                    <span className="font-semibold text-slate-200 capitalize font-mono">
+                    <span className="font-bold text-[#182033] capitalize font-mono">
                       {t.task_type.replace('_', ' ')}
                     </span>
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-950/60 text-amber-300 border border-amber-500/40">
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-md bg-[#FFFBEB] text-[#92400E] border border-[#FDE68A]">
                       {t.status}
                     </span>
                   </div>
-                  <p className="text-slate-400">{t.instructions}</p>
+                  <p className="text-[#68738A]">{t.instructions}</p>
                   {t.findings && (
-                    <div className="mt-1 pt-1 text-emerald-400 font-mono text-[11px] border-t border-slate-800">
+                    <div className="mt-1 pt-1 text-[#065F46] font-mono text-[11px] border-t border-[#E5E9F2]">
                       Findings: {t.findings}
                     </div>
                   )}
@@ -202,13 +203,13 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
           )}
         </div>
 
-        {/* Right Column: Composite Risk Engine & Signals & Extracted Invoices */}
+        {/* Right Column: Composite Risk Engine, Signals & Evidence Panels */}
         <div className="lg:col-span-2 space-y-6">
           {/* Extracted Invoice Evidence Section (Phase 2 Ingestion) */}
           <div className="space-y-3">
-            <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
-              <Receipt className="h-5 w-5 text-indigo-400" />
-              Ingested Invoice Documents & AI-Extracted Line Items
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#182033] flex items-center gap-2">
+              <Receipt className="h-4 w-4 text-[#4F6EF7]" />
+              <span>Ingested Invoice Documents & Extracted Line Items</span>
             </h3>
             {attachedInvoices.map((inv: any) => (
               <InvoiceEvidenceCard key={inv.id} invoice={inv} />
@@ -226,7 +227,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             ))}
           </div>
 
-          {/* Installation Image Forensics & Telemetry (Phase 4 Engine) */}
+          {/* Installation Image Forensics & Telemetry (Phase 4 & 5 Engine) */}
           <div className="space-y-3">
             <ImageVerificationPanel
               caseId={caseItem.id}
@@ -243,6 +244,7 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
             />
           </div>
 
+          {/* Phase 6 Risk Scoring Authority */}
           <RiskScoreCard
             caseId={caseItem.id}
             initialScore={riskScore}
@@ -251,13 +253,13 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
           {/* Risk Signals / Anomalies */}
           <div className="space-y-3">
-            <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
-              <ShieldAlert className="h-5 w-5 text-rose-400" />
-              Detected Risk Signals & Evidence Breakdowns
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#182033] flex items-center gap-2">
+              <ShieldAlert className="h-4 w-4 text-[#EF4444]" />
+              <span>Detected Risk Signals & Evidence Breakdowns</span>
             </h3>
 
             {riskSignals.length === 0 ? (
-              <div className="p-5 rounded-xl border border-slate-800 bg-slate-900/40 text-center text-slate-400 text-xs">
+              <div className="p-6 rounded-2xl border border-[#E5E9F2] bg-white text-center text-[#68738A] text-xs shadow-xs">
                 No high-severity risk signals recorded for this case.
               </div>
             ) : (
@@ -267,14 +269,14 @@ export default async function CaseDetailPage({ params }: CaseDetailPageProps) {
 
           {/* Evidence Repository */}
           <div className="space-y-3">
-            <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
-              <FileText className="h-5 w-5 text-indigo-400" />
-              Supporting Telemetry & Photo Evidence
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#182033] flex items-center gap-2">
+              <FileText className="h-4 w-4 text-[#4F6EF7]" />
+              <span>Supporting Telemetry & Photo Evidence</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {evidenceItems.length === 0 ? (
-                <div className="col-span-2 p-5 rounded-xl border border-slate-800 bg-slate-900/40 text-center text-slate-400 text-xs">
+                <div className="col-span-2 p-6 rounded-2xl border border-[#E5E9F2] bg-white text-center text-[#68738A] text-xs shadow-xs">
                   No staged evidence documents attached.
                 </div>
               ) : (

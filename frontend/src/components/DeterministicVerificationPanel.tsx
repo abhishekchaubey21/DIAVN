@@ -62,83 +62,36 @@ export const DeterministicVerificationPanel: React.FC<DeterministicVerificationP
         }
       },
       {
-        check_type: 'SERIAL_PRESENCE_AND_FORMAT',
-        check_name: 'Serial Number Format Validity',
+        check_type: 'LINE_ITEM_TOTALS',
+        check_name: 'Line Items Sum vs Invoice Total',
         status: 'PASS',
         severity: 'INFO',
-        message: 'Serial number conforms to standard alphanumeric equipment format.',
-        evidence: { serial_number: 'SG-5K-99014' }
+        message: 'Line items sum (₹115,000.00) precisely matches declared invoice total.',
+        evidence: { line_items_sum: 115000, declared_total: 115000, delta: 0 }
       },
       {
-        check_type: 'INVOICE_ARITHMETIC',
-        check_name: 'Invoice Internal Arithmetic Integrity',
+        check_type: 'TAX_MATH',
+        check_name: 'GST Tax Math Verification',
         status: 'PASS',
         severity: 'INFO',
-        message: 'All line item multiplications and gross totals reconcile with subtotal + tax.',
-        evidence: { stated_total: 115000, subtotal: 97457.6, tax: 17542.4 }
+        message: 'Calculated 18% GST (₹20,700.00) matches declared tax.',
+        evidence: { taxable_amount: 115000, calculated_tax: 20700, declared_tax: 20700 }
       },
       {
-        check_type: 'CASE_ENTITY_CONSISTENCY',
-        check_name: 'Case Entity & Asset Correspondence',
+        check_type: 'SERIAL_DEDUPLICATION',
+        check_name: 'Serial Number Cross-Case Deduplication',
         status: 'PASS',
         severity: 'INFO',
-        message: 'Invoice issuing dealer and customer match authorized underwriting application.',
-        evidence: { matched_dealer: 'SunPower Retail & Infra Solutions', matched_customer: 'Meera Patel' }
+        message: 'No duplicate equipment serial number detected across database.',
+        evidence: { serial_number: 'SG-INV-2026-7788', duplicates_found: 0 }
       },
       {
-        check_type: 'REQUIRED_EVIDENCE_FIELDS',
-        check_name: 'Required Evidence Completeness',
+        check_type: 'DEALER_IDENTITY',
+        check_name: 'Dealer Identity & GSTIN Consistency',
         status: 'PASS',
         severity: 'INFO',
-        message: 'All mandatory invoice evidence fields are present.',
-        evidence: { validated_fields: ['invoice_number', 'invoice_date', 'dealer_name', 'customer_name', 'total_amount'] }
-      }
-    ] : caseScenarioId === 'CAS-2026-005' ? [
-      {
-        check_type: 'SERIAL_INTERNAL_DUPLICATE',
-        check_name: 'Internal Asset Registry Duplicate Check',
-        status: 'ANOMALY',
-        severity: 'HIGH',
-        message: "Serial number 'ASP-2025-99881' already belongs to existing active case #CAS-2026-001 in internal database.",
-        evidence: {
-          serial_number: 'ASP-2025-99881',
-          current_case_id: 'CAS-2026-005',
-          prior_case_id: 'CAS-2026-001',
-          prior_installed_at: '2025-08-14',
-          scope: 'internal_lender_registry'
-        }
-      },
-      {
-        check_type: 'PRICE_BENCHMARK',
-        check_name: 'Product Price Benchmark Consistency',
-        status: 'PASS',
-        severity: 'INFO',
-        message: 'Unit price (₹190,000.00) is within normal benchmark range (₹157,250 – ₹212,750).',
-        evidence: { product: 'Solar Water Pump 5HP', invoice_unit_price: 190000, benchmark_avg_price: 185000, variance_pct: 2.7 }
-      },
-      {
-        check_type: 'INVOICE_ARITHMETIC',
-        check_name: 'Invoice Internal Arithmetic Integrity',
-        status: 'PASS',
-        severity: 'INFO',
-        message: 'All line item multiplications and gross totals reconcile with subtotal + tax.',
-        evidence: { stated_total: 190000, subtotal: 161016.9, tax: 28983.1 }
-      },
-      {
-        check_type: 'CASE_ENTITY_CONSISTENCY',
-        check_name: 'Case Entity & Asset Correspondence',
-        status: 'PASS',
-        severity: 'INFO',
-        message: 'Invoice issuing dealer and customer match authorized underwriting application.',
-        evidence: { matched_dealer: 'Radiant AgroTech Distributions', matched_customer: 'GreenFields Agri Enterprises' }
-      },
-      {
-        check_type: 'REQUIRED_EVIDENCE_FIELDS',
-        check_name: 'Required Evidence Completeness',
-        status: 'PASS',
-        severity: 'INFO',
-        message: 'All mandatory invoice evidence fields are present.',
-        evidence: { validated_fields: ['invoice_number', 'invoice_date', 'dealer_name', 'customer_name', 'total_amount'] }
+        message: 'Invoice GSTIN matches authorized dealer database registry.',
+        evidence: { invoice_gstin: '24BBBCB5678B1Z2', registry_gstin: '24BBBCB5678B1Z2' }
       }
     ] : [
       {
@@ -146,40 +99,40 @@ export const DeterministicVerificationPanel: React.FC<DeterministicVerificationP
         check_name: 'Product Price Benchmark Consistency',
         status: 'PASS',
         severity: 'INFO',
-        message: 'Unit price (₹195,000.00) is within normal benchmark range (₹157,250 – ₹212,750).',
-        evidence: { product: 'Solar Water Pump 5HP', invoice_unit_price: 195000, benchmark_avg_price: 185000, allowed_range: [157250, 212750], variance_pct: 5.4 }
+        message: 'Invoice unit price is within normal market tolerance band (±15%).',
+        evidence: { unit_price: 195000, benchmark_avg: 185000, variance_pct: 5.4 }
       },
       {
-        check_type: 'SERIAL_PRESENCE_AND_FORMAT',
-        check_name: 'Serial Number Format & Uniqueness',
+        check_type: 'LINE_ITEM_TOTALS',
+        check_name: 'Line Items Sum vs Invoice Total',
         status: 'PASS',
         severity: 'INFO',
-        message: 'Serial ASP-2025-99881 verified unique and correctly formatted in registry.',
-        evidence: { serial_number: 'ASP-2025-99881', format: 'valid_alphanumeric' }
+        message: 'Calculated items sum equals declared invoice total.',
+        evidence: { line_items_sum: 195000, declared_total: 195000, delta: 0 }
       },
       {
-        check_type: 'INVOICE_ARITHMETIC',
-        check_name: 'Invoice Internal Arithmetic Integrity',
+        check_type: 'TAX_MATH',
+        check_name: 'GST Tax Math Verification',
         status: 'PASS',
         severity: 'INFO',
-        message: 'All line item multiplications and gross totals reconcile with subtotal + tax.',
-        evidence: { stated_total: 195000, subtotal: 165254.2, tax: 29745.8 }
+        message: 'Calculated GST matches invoice tax line within ±₹1.00 tolerance.',
+        evidence: { calculated_tax: 35100, declared_tax: 35100 }
       },
       {
-        check_type: 'CASE_ENTITY_CONSISTENCY',
-        check_name: 'Case Entity & Asset Correspondence',
+        check_type: 'SERIAL_FORMAT',
+        check_name: 'Serial Number Format Validation',
         status: 'PASS',
         severity: 'INFO',
-        message: 'Invoice issuing dealer and customer match authorized underwriting application.',
-        evidence: { matched_dealer: 'Apex Solar Solutions', matched_customer: 'Rajesh Sharma' }
+        message: 'Extracted serial numbers comply with OEM format standards.',
+        evidence: { serial_number: 'ASP-2025-99881', is_valid_format: true }
       },
       {
-        check_type: 'REQUIRED_EVIDENCE_FIELDS',
-        check_name: 'Required Evidence Completeness',
+        check_type: 'SERIAL_DEDUPLICATION',
+        check_name: 'Serial Number Cross-Case Deduplication',
         status: 'PASS',
         severity: 'INFO',
-        message: 'All mandatory invoice evidence fields are present.',
-        evidence: { validated_fields: ['invoice_number', 'invoice_date', 'dealer_name', 'customer_name', 'total_amount'] }
+        message: 'Asset serial is unique and not associated with active prior loans.',
+        evidence: { serial_number: 'ASP-2025-99881', duplicates_found: 0 }
       }
     ]
   };
@@ -192,7 +145,7 @@ export const DeterministicVerificationPanel: React.FC<DeterministicVerificationP
         setSummary(res);
       }
     } catch (err) {
-      console.error('Verification execution error:', err);
+      console.warn('Backend verification run failed, using local simulation:', err);
     } finally {
       setLoading(false);
     }
@@ -202,23 +155,23 @@ export const DeterministicVerificationPanel: React.FC<DeterministicVerificationP
     switch (status) {
       case 'PASS':
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/40 px-2 py-0.5 rounded">
-            <CheckCircle2 className="h-3.5 w-3.5" />
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#065F46] bg-[#ECFDF5] border border-[#A7F3D0] px-2 py-0.5 rounded-md uppercase">
+            <CheckCircle2 className="h-3 w-3" />
             PASS
           </span>
         );
       case 'ANOMALY':
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-rose-400 bg-rose-950/60 border border-rose-500/40 px-2 py-0.5 rounded animate-pulse">
-            <AlertTriangle className="h-3.5 w-3.5" />
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#991B1B] bg-[#FEF2F2] border border-[#FECACA] px-2 py-0.5 rounded-md uppercase">
+            <AlertTriangle className="h-3 w-3" />
             ANOMALY
           </span>
         );
       case 'INCONCLUSIVE':
       default:
         return (
-          <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-slate-300 bg-slate-800 border border-slate-700 px-2 py-0.5 rounded">
-            <HelpCircle className="h-3.5 w-3.5" />
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#92400E] bg-[#FFFBEB] border border-[#FDE68A] px-2 py-0.5 rounded-md uppercase">
+            <HelpCircle className="h-3 w-3" />
             INCONCLUSIVE
           </span>
         );
@@ -226,17 +179,20 @@ export const DeterministicVerificationPanel: React.FC<DeterministicVerificationP
   };
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/90 p-5 backdrop-blur-md space-y-4 shadow-xl">
+    <div className="rounded-2xl border border-[#E5E9F2] bg-white p-6 shadow-xs space-y-5">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E9F2] pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <Cpu className="h-5 w-5 text-indigo-400" />
-            <h3 className="text-base font-bold text-slate-100">
-              Deterministic Invoice Verification Engine
+            <h3 className="text-sm font-bold text-[#182033] flex items-center gap-2">
+              <Cpu className="h-4 w-4 text-[#4F6EF7]" />
+              <span>Deterministic Invoice Consistency Engine</span>
             </h3>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#F1F4FA] text-[#4F6EF7] border border-[#E5E9F2] font-bold">
+              Phase 3 Audit
+            </span>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-[#68738A] mt-0.5">
             Local rules evaluation • Zero external APIs • Evidence consistency checks
           </p>
         </div>
@@ -244,7 +200,7 @@ export const DeterministicVerificationPanel: React.FC<DeterministicVerificationP
         <button
           onClick={handleRunVerification}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white text-xs font-semibold shadow-md transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F8FAFD] hover:bg-[#4F6EF7] text-[#182033] hover:text-white border border-[#E5E9F2] hover:border-[#4F6EF7] text-xs font-bold transition-all disabled:opacity-50"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
           <span>{loading ? 'Evaluating Rules...' : 'Re-run Checks'}</span>
@@ -252,18 +208,20 @@ export const DeterministicVerificationPanel: React.FC<DeterministicVerificationP
       </div>
 
       {/* Stage Distinction Banner */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center text-xs">
-        <div className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
-          <span className="text-[10px] uppercase font-semibold text-slate-500 block">AI Evidence Extraction</span>
-          <span className="font-mono text-emerald-400 font-bold mt-0.5 block">COMPLETED</span>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center text-xs">
+        <div className="p-3 rounded-xl bg-[#F8FAFD] border border-[#E5E9F2]">
+          <span className="text-[10px] uppercase font-bold text-[#8E99AD] block">AI Evidence Extraction</span>
+          <span className="font-mono text-[#065F46] font-bold mt-0.5 block">COMPLETED</span>
         </div>
-        <div className="p-2.5 rounded-lg bg-indigo-950/30 border border-indigo-500/30">
-          <span className="text-[10px] uppercase font-semibold text-indigo-300 block">Deterministic Rules</span>
-          <span className="font-mono text-indigo-400 font-bold mt-0.5 block">COMPLETED ({activeSummary.passed_count} PASS / {activeSummary.anomaly_count} ANOMALY)</span>
+        <div className="p-3 rounded-xl bg-[#4F6EF7]/10 border border-[#4F6EF7]/20">
+          <span className="text-[10px] uppercase font-bold text-[#4F6EF7] block">Deterministic Rules</span>
+          <span className="font-mono text-[#4F6EF7] font-bold mt-0.5 block">
+            {activeSummary.passed_count} PASS / {activeSummary.anomaly_count} ANOMALY
+          </span>
         </div>
-        <div className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
-          <span className="text-[10px] uppercase font-semibold text-slate-500 block">Final Risk Score</span>
-          <span className="font-mono text-slate-400 font-medium mt-0.5 block">NOT YET COMPUTED</span>
+        <div className="p-3 rounded-xl bg-[#F8FAFD] border border-[#E5E9F2]">
+          <span className="text-[10px] uppercase font-bold text-[#8E99AD] block">Phase 6 Scoring Authority</span>
+          <span className="font-mono text-[#182033] font-bold mt-0.5 block">ACTIVE</span>
         </div>
       </div>
 
@@ -276,48 +234,46 @@ export const DeterministicVerificationPanel: React.FC<DeterministicVerificationP
           return (
             <div
               key={idx}
-              className={`rounded-lg border transition-all ${
+              className={`rounded-xl border transition-all overflow-hidden ${
                 isAnomaly 
-                  ? 'border-rose-500/40 bg-rose-950/20' 
-                  : check.status === 'PASS' 
-                    ? 'border-slate-800 bg-slate-950/40' 
-                    : 'border-slate-800 bg-slate-950/30'
+                  ? 'border-[#FECACA] bg-[#FEF2F2]/40' 
+                  : 'border-[#E5E9F2] bg-white hover:border-[#D1D8E6]'
               }`}
             >
               <div
                 onClick={() => setExpandedIndex(isExpanded ? null : idx)}
-                className="p-3.5 flex items-center justify-between cursor-pointer select-none"
+                className="p-3.5 flex items-center justify-between cursor-pointer select-none hover:bg-[#F8FAFD]"
               >
                 <div className="flex items-center gap-2.5">
                   {getStatusBadge(check.status)}
                   <div>
-                    <h4 className="text-xs font-semibold text-slate-200">{check.check_name}</h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">{check.message}</p>
+                    <h4 className="text-xs font-bold text-[#182033]">{check.check_name}</h4>
+                    <p className="text-[11px] text-[#68738A] mt-0.5 line-clamp-1">{check.message}</p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] uppercase font-mono text-slate-500 hidden sm:inline">
+                  <span className="text-[10px] uppercase font-mono text-[#8E99AD] hidden sm:inline">
                     {check.check_type}
                   </span>
                   {isExpanded ? (
-                    <ChevronUp className="h-4 w-4 text-slate-400" />
+                    <ChevronUp className="h-4 w-4 text-[#8E99AD]" />
                   ) : (
-                    <ChevronDown className="h-4 w-4 text-slate-400" />
+                    <ChevronDown className="h-4 w-4 text-[#8E99AD]" />
                   )}
                 </div>
               </div>
 
               {/* Expandable Evidence Payload */}
               {isExpanded && (
-                <div className="px-3.5 pb-3.5 pt-1 border-t border-slate-800/80 space-y-2 text-xs">
-                  <div className="text-slate-300 font-normal">{check.message}</div>
+                <div className="px-4 pb-4 pt-2 border-t border-[#E5E9F2] bg-[#F8FAFD] space-y-2 text-xs">
+                  <div className="text-[#182033] font-medium leading-relaxed">{check.message}</div>
                   {check.evidence && Object.keys(check.evidence).length > 0 && (
                     <div>
-                      <span className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 block font-mono mb-1">
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-[#8E99AD] block font-mono mb-1">
                         Deterministic Verification Evidence Payload:
                       </span>
-                      <pre className="bg-slate-950 p-2.5 rounded border border-slate-800 font-mono text-[11px] text-slate-300 overflow-x-auto whitespace-pre-wrap">
+                      <pre className="bg-white p-3 rounded-xl border border-[#E5E9F2] font-mono text-[11px] text-[#182033] overflow-x-auto whitespace-pre-wrap">
                         {JSON.stringify(check.evidence, null, 2)}
                       </pre>
                     </div>
@@ -330,12 +286,11 @@ export const DeterministicVerificationPanel: React.FC<DeterministicVerificationP
       </div>
 
       {/* Regulatory / System Disclaimer */}
-      <div className="p-3 bg-slate-950/80 rounded-lg border border-slate-800 text-[11px] text-slate-400 flex items-start gap-2">
-        <Info className="h-4 w-4 shrink-0 text-slate-500 mt-0.5" />
-        <div>
-          <span className="font-semibold text-slate-300 block">Important Underwriting Notice:</span>
-          An anomaly is an evidence-based inconsistency requiring human underwriter or field audit review. It is <strong>not</strong> a determination of fraud.
-        </div>
+      <div className="p-3.5 bg-[#F6F8FC] rounded-xl border border-[#E5E9F2] text-[11px] text-[#8E99AD] flex items-start gap-2">
+        <Info className="h-4 w-4 shrink-0 text-[#4F6EF7] mt-0.5" />
+        <p className="leading-relaxed">
+          <strong className="text-[#182033]">Underwriting Notice:</strong> An anomaly indicates an evidence inconsistency evaluated by deterministic rules. It does not constitute legal proof of fraud.
+        </p>
       </div>
     </div>
   );

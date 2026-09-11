@@ -148,6 +148,8 @@ export interface Case {
   customer_name?: string;
   asset_type: string;
   claimed_installation_address: string;
+  claimed_lat?: number;
+  claimed_lng?: number;
   loan_amount: number;
   status: CaseStatus;
   risk_level: RiskLevel;
@@ -321,7 +323,7 @@ export interface CaseRelationshipAnalysisResponse {
 
 export type PipelineRunStatus = 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'PARTIAL' | 'FAILED';
 
-export type PipelineStageName = 
+export type PipelineStageName =
   | 'INVOICE_EXTRACTION'
   | 'INVOICE_VERIFICATION'
   | 'IMAGE_PROCESSING'
@@ -361,7 +363,7 @@ export interface PipelineStatusResponse {
 }
 
 // Phase 9: Workflow Automation & Alerts
-export type WorkflowEventType = 
+export type WorkflowEventType =
   | 'CASE_VERIFICATION_COMPLETED'
   | 'CASE_VERIFICATION_HIGH_RISK'
   | 'VERIFICATION_TASK_CREATED'

@@ -105,38 +105,38 @@ export function CaseVerificationPipeline({
     switch (status) {
       case 'COMPLETED':
         return (
-          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
             <CheckCircle2 className="h-3 w-3" /> Completed
           </span>
         );
       case 'SKIPPED':
         return (
-          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono bg-slate-800 text-slate-400 border border-slate-700 flex items-center gap-1">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase font-mono bg-slate-100 text-[#68738A] border border-slate-200 flex items-center gap-1">
             <HelpCircle className="h-3 w-3" /> Skipped
           </span>
         );
       case 'INCONCLUSIVE':
         return (
-          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono bg-amber-950/80 text-amber-300 border border-amber-500/40 flex items-center gap-1">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase font-mono bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
             <AlertCircle className="h-3 w-3" /> Partial
           </span>
         );
       case 'FAILED':
         return (
-          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono bg-rose-950/80 text-rose-300 border border-rose-500/40 flex items-center gap-1">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase font-mono bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1">
             <XCircle className="h-3 w-3" /> Failed
           </span>
         );
       case 'RUNNING':
       case 'PROCESSING':
         return (
-          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono bg-indigo-950/80 text-indigo-300 border border-indigo-500/40 flex items-center gap-1 animate-pulse">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase font-mono bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1 animate-pulse">
             <RefreshCw className="h-3 w-3 animate-spin" /> Running
           </span>
         );
       default:
         return (
-          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono bg-slate-800 text-slate-400 border border-slate-700">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase font-mono bg-slate-100 text-[#68738A] border border-slate-200">
             Pending
           </span>
         );
@@ -146,21 +146,21 @@ export function CaseVerificationPipeline({
   const stages = pipelineState?.stages || [];
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-6 space-y-6 backdrop-blur-md">
+    <div className="rounded-2xl border border-[#E5E9F2] bg-white p-6 space-y-6 shadow-sm">
       {/* Header & Main Trigger */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E9F2] pb-5">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-indigo-500/20 to-cyan-500/20 border border-indigo-500/30 text-indigo-400">
+          <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-100 text-blue-600">
             <Layers className="h-6 w-6" />
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <h2 className="text-lg font-bold text-white">Case Verification Pipeline Orchestrator</h2>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950/80 text-indigo-300 border border-indigo-500/30">
+              <h2 className="text-base font-bold text-[#182033]">Case Verification Pipeline Orchestrator</h2>
+              <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                 pipeline-v1
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-xs text-[#68738A] mt-0.5">
               Unified orchestration across Invoice AI, Image Forensics, Visual Similarity, Relationships, and Risk Engine
             </p>
           </div>
@@ -171,12 +171,12 @@ export function CaseVerificationPipeline({
             <span
               className={`px-3 py-1 rounded-lg text-xs font-bold font-mono uppercase tracking-wider border ${
                 pipelineState.status === 'COMPLETED'
-                  ? 'bg-emerald-950/60 text-emerald-300 border-emerald-500/40'
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                   : pipelineState.status === 'PARTIAL'
-                  ? 'bg-amber-950/60 text-amber-300 border-amber-500/40'
+                  ? 'bg-amber-50 text-amber-700 border-amber-200'
                   : pipelineState.status === 'PROCESSING'
-                  ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/40 animate-pulse'
-                  : 'bg-slate-800 text-slate-400 border-slate-700'
+                  ? 'bg-blue-50 text-blue-700 border-blue-200 animate-pulse'
+                  : 'bg-slate-100 text-[#68738A] border-slate-200'
               }`}
             >
               Pipeline: {pipelineState.status}
@@ -186,7 +186,7 @@ export function CaseVerificationPipeline({
           <button
             onClick={handleRunPipeline}
             disabled={isRunning}
-            className="px-4 py-2 rounded-lg text-xs font-bold bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white shadow-lg shadow-indigo-500/20 disabled:opacity-50 flex items-center gap-2 transition-all"
+            className="px-4 py-2 rounded-lg text-xs font-bold bg-[#4F6EF7] hover:bg-[#3D5CE5] text-white shadow-sm disabled:opacity-50 flex items-center gap-2 transition-all"
           >
             {isRunning ? (
               <>
@@ -204,18 +204,18 @@ export function CaseVerificationPipeline({
       </div>
 
       {errorMsg && (
-        <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-500/40 text-xs text-rose-300 flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2">
+          <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
           {errorMsg}
         </div>
       )}
 
       {/* Stage Progression Flow */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between text-xs text-slate-400 font-semibold uppercase tracking-wider">
+        <div className="flex items-center justify-between text-xs text-[#68738A] font-semibold uppercase tracking-wider">
           <span>Verification Stage Execution Chain</span>
           {pipelineState?.total_duration_ms !== undefined && (
-            <span className="font-mono text-slate-500 lowercase flex items-center gap-1">
+            <span className="font-mono text-[#8F9CAE] lowercase flex items-center gap-1">
               <Clock className="h-3 w-3" /> Total Duration: {pipelineState.total_duration_ms} ms
             </span>
           )}
@@ -225,11 +225,11 @@ export function CaseVerificationPipeline({
           {stages.map((stage, idx) => (
             <div
               key={stage.id || idx}
-              className="p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 space-y-2 hover:border-slate-700 transition-colors"
+              className="p-3.5 rounded-xl border border-[#E5E9F2] bg-[#F8FAFD] space-y-2 hover:border-slate-300 transition-colors"
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-slate-200 font-semibold font-mono">
-                  <div className="p-1.5 rounded-md bg-slate-900 border border-slate-800 text-indigo-400">
+                <div className="flex items-center gap-2 text-[#182033] font-semibold font-mono">
+                  <div className="p-1.5 rounded-lg bg-white border border-[#E5E9F2] text-blue-600">
                     {getStageIcon(stage.stage_name)}
                   </div>
                   <span>{stage.stage_name.replace(/_/g, ' ')}</span>
@@ -238,46 +238,46 @@ export function CaseVerificationPipeline({
               </div>
 
               {stage.result_summary && Object.keys(stage.result_summary).length > 0 && (
-                <div className="p-2 bg-slate-900/80 rounded-lg border border-slate-800/80 text-[11px] font-mono text-slate-400 space-y-0.5">
+                <div className="p-2.5 bg-white rounded-lg border border-[#E5E9F2] text-[11px] font-mono text-[#68738A] space-y-1">
                   {stage.result_summary.overall_score !== undefined && (
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Risk Score:</span>
-                      <strong className="text-slate-200">{stage.result_summary.overall_score} / 100 ({stage.result_summary.risk_band})</strong>
+                      <span className="text-[#8F9CAE]">Risk Score:</span>
+                      <strong className="text-[#182033]">{stage.result_summary.overall_score} / 100 ({stage.result_summary.risk_band})</strong>
                     </div>
                   )}
                   {stage.result_summary.extracted_invoices !== undefined && (
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Invoices Processed:</span>
-                      <span className="text-slate-200">{stage.result_summary.extracted_invoices}</span>
+                      <span className="text-[#8F9CAE]">Invoices Processed:</span>
+                      <span className="text-[#182033]">{stage.result_summary.extracted_invoices}</span>
                     </div>
                   )}
                   {stage.result_summary.images_processed !== undefined && (
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Images Evaluated:</span>
-                      <span className="text-slate-200">{stage.result_summary.images_processed}</span>
+                      <span className="text-[#8F9CAE]">Images Evaluated:</span>
+                      <span className="text-[#182033]">{stage.result_summary.images_processed}</span>
                     </div>
                   )}
                   {stage.result_summary.structural_count !== undefined && (
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Relationships:</span>
-                      <span className="text-slate-200">{stage.result_summary.structural_count} struct • {stage.result_summary.evidence_count} evid</span>
+                      <span className="text-[#8F9CAE]">Relationships:</span>
+                      <span className="text-[#182033]">{stage.result_summary.structural_count} struct • {stage.result_summary.evidence_count} evid</span>
                     </div>
                   )}
                   {stage.result_summary.task_required !== undefined && (
                     <div className="flex justify-between">
-                      <span className="text-slate-500">Field Task:</span>
-                      <span className={stage.result_summary.task_required ? 'text-rose-400 font-bold' : 'text-emerald-400'}>
+                      <span className="text-[#8F9CAE]">Field Task:</span>
+                      <span className={stage.result_summary.task_required ? 'text-rose-600 font-bold' : 'text-emerald-600 font-medium'}>
                         {stage.result_summary.task_required ? 'Dispatched' : 'Not Required'}
                       </span>
                     </div>
                   )}
                   {stage.result_summary.message && (
-                    <p className="text-[10px] text-slate-500 italic pt-0.5">{stage.result_summary.message}</p>
+                    <p className="text-[10px] text-[#8F9CAE] italic pt-0.5">{stage.result_summary.message}</p>
                   )}
                 </div>
               )}
 
-              <div className="flex justify-between items-center text-[10px] text-slate-500 font-mono">
+              <div className="flex justify-between items-center text-[10px] text-[#8F9CAE] font-mono">
                 <span>Stage #{idx + 1}</span>
                 <span>{stage.duration_ms} ms</span>
               </div>
@@ -288,13 +288,13 @@ export function CaseVerificationPipeline({
 
       {/* Phase 9 Workflow Automation & Alerts Status */}
       {workflowEvents.length > 0 && (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <Bell className="h-4 w-4 text-cyan-400" />
+        <div className="rounded-xl border border-[#E5E9F2] bg-[#F8FAFD] p-4 space-y-3">
+          <div className="flex items-center justify-between border-b border-[#E5E9F2] pb-2">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#182033] flex items-center gap-2">
+              <Bell className="h-4 w-4 text-blue-600" />
               Phase 9 Alerts & Workflow Automation (Outbox)
             </h4>
-            <span className="text-[10px] text-slate-500 font-mono">
+            <span className="text-[10px] text-[#8F9CAE] font-mono">
               {workflowEvents.length} {workflowEvents.length === 1 ? 'Event' : 'Events'} Logged
             </span>
           </div>
@@ -309,37 +309,37 @@ export function CaseVerificationPipeline({
               return (
                 <div
                   key={ev.id || ev.event_id}
-                  className="p-3 bg-slate-950/70 rounded-lg border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                  className="p-3 bg-white rounded-xl border border-[#E5E9F2] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[11px] font-semibold text-slate-200">
+                      <span className="font-mono text-[11px] font-semibold text-[#182033]">
                         {ev.event_id}
                       </span>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
                         isHighRiskAlert
-                          ? 'bg-rose-950/80 text-rose-300 border border-rose-500/40'
-                          : 'bg-indigo-950/80 text-indigo-300 border border-indigo-500/40'
+                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                          : 'bg-blue-50 text-blue-700 border border-blue-200'
                       }`}>
                         {ev.event_type.replace('CASE_VERIFICATION_', '')}
                       </span>
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
                         isDelivered
-                          ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                           : isFailed
-                          ? 'bg-rose-950/80 text-rose-300 border border-rose-500/40'
-                          : 'bg-amber-950/80 text-amber-300 border border-amber-500/40'
+                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                          : 'bg-amber-50 text-amber-700 border border-amber-200'
                       }`}>
                         {ev.status}
                       </span>
                     </div>
 
-                    <p className="text-slate-400 text-[11px]">
+                    <p className="text-[#68738A] text-[11px]">
                       {isHighRiskAlert
                         ? 'High-risk operational notification dispatched to underwriting reviewer.'
                         : 'Lifecycle verification completed event preserved for audit.'}
                       {ev.last_error && (
-                        <span className="text-rose-400 block font-mono text-[10px] pt-0.5">
+                        <span className="text-rose-600 block font-mono text-[10px] pt-0.5">
                           Error: {ev.last_error}
                         </span>
                       )}
@@ -347,7 +347,7 @@ export function CaseVerificationPipeline({
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[10px] text-slate-500 font-mono">
+                    <span className="text-[10px] text-[#8F9CAE] font-mono">
                       Attempts: {ev.attempt_count}/{ev.max_attempts}
                     </span>
                     {(isFailed || ev.status === 'RETRY_PENDING') && (
@@ -359,7 +359,7 @@ export function CaseVerificationPipeline({
                           setIsRetryingEvent(null);
                         }}
                         disabled={isRetryingEvent === ev.event_id}
-                        className="px-2.5 py-1 text-[11px] font-medium rounded bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                        className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-[#4F6EF7] hover:bg-[#3D5CE5] text-white flex items-center gap-1.5 transition-colors disabled:opacity-50 shadow-sm"
                       >
                         <RefreshCw className={`h-3 w-3 ${isRetryingEvent === ev.event_id ? 'animate-spin' : ''}`} />
                         Retry Dispatch
@@ -374,8 +374,8 @@ export function CaseVerificationPipeline({
       )}
 
       {/* Compliance Note */}
-      <div className="pt-3 border-t border-slate-800 text-[11px] text-slate-500 flex items-start gap-2">
-        <Info className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
+      <div className="pt-3 border-t border-[#E5E9F2] text-[11px] text-[#8F9CAE] flex items-start gap-2">
+        <Info className="h-4 w-4 text-[#68738A] shrink-0 mt-0.5" />
         <p className="leading-relaxed">
           Phase 8 & 9 Orchestration & Automation: DIAVN remains the sole source of truth for risk calculations and verification tasks. n8n serves strictly as an automation and notification layer with zero business logic.
         </p>
