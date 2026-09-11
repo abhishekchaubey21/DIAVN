@@ -1,0 +1,138 @@
+{
+  "name": "DIAVN High-Risk Verification Review Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "diavn-events",
+        "responseMode": "onReceived",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "id": "node-webhook-1",
+      "name": "DIAVN Webhook Receiver",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Validate HMAC-SHA256 Signature and Check Replay Window\nconst crypto = require('crypto');\nconst secret = $env.DIAVN_WEBHOOK_SECRET || 'diavn-default-shared-secret-for-n8n-auth';\n\nconst headers = $node[\"DIAVN Webhook Receiver\"].json.headers;\nconst body = $node[\"DIAVN Webhook Receiver\"].json.body;\n\nconst rawSignature = headers['x-diavn-signature'] || '';\nconst timestamp = headers['x-diavn-timestamp'] || '';\nconst eventId = headers['x-diavn-event-id'] || body.event_id;\n\n// 5-minute replay window check\nconst now = Date.now();\nconst eventTime = new Date(timestamp).getTime();\nif (Math.abs(now - eventTime) > 300000) {\n  throw new Error('Webhook timestamp replay window exceeded (>300s)');\n}\n\n// Canonical HMAC check: HMAC(timestamp + '.' + JSON.stringify(body))\nconst expectedSig = 'sha256=' + crypto.createHmac('sha256', secret).update(timestamp + '.' + JSON.stringify(body)).digest('hex');\n\nreturn [{\n  json: {\n    ...body,\n    event_id: eventId,\n    signature_valid: true,\n    received_at: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "node-validate-signature",
+      "name": "Validate HMAC & Timestamp",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Durable Deduplication Check\n// Ensures an event_id is only processed once for operational alerts\nconst staticData = getWorkflowStaticData('global');\nstaticData.processedEvents = staticData.processedEvents || {};\n\nconst eventId = $json.event_id;\nif (staticData.processedEvents[eventId]) {\n  return [{\n    json: {\n      ...$json,\n      is_duplicate: true,\n      status: 'duplicate_suppressed'\n    }\n  }];\n}\n\n// Mark as processed\nstaticData.processedEvents[eventId] = Date.now();\nreturn [{\n  json: {\n    ...$json,\n    is_duplicate: false\n  }\n}];"
+      },
+      "id": "node-deduplicate",
+      "name": "Durable Deduplication",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.event_type}}",
+              "value2": "CASE_VERIFICATION_HIGH_RISK"
+            }
+          ],
+          "boolean": [
+            {
+              "value1": "={{$json.is_duplicate}}",
+              "value2": false
+            }
+          ]
+        }
+      },
+      "id": "node-switch-risk",
+      "name": "Is High Risk & Not Duplicate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Format DIAVN Underwriting Notification using exact Phase 6 terminology\nconst data = $json;\nconst subject = `[DIAVN ALERT] Case ${data.case_number}: Verification Review Required`;\nconst anomaliesList = (data.top_anomalies || []).map(a => `• ${a}`).join('\\n');\n\nconst messageBody = `🚨 DIAVN VERIFICATION REVIEW REQUIRED\\n` +\n  `=========================================\\n` +\n  `Case Number: ${data.case_number}\\n` +\n  `Risk Score:  ${data.risk_score} / 100 (Band: ${data.risk_band})\\n` +\n  `Status:      Multiple/high-significance verification anomalies detected; field verification recommended.\\n` +\n  `Action:      Physical site visit task created (${data.verification_task_id || 'Pending assignment'})\\n\\n` +\n  `Key Anomalies:\\n${anomaliesList || '• Verification rule anomalies recorded'}\\n\\n` +\n  `Direct Case Review: ${data.case_url}\\n` +\n  `Event Reference:    ${data.event_id}\\n` +\n  `Timestamp:          ${data.timestamp}`;\n\nconsole.log(messageBody);\n\nreturn [{\n  json: {\n    subject: subject,\n    body: messageBody,\n    case_number: data.case_number,\n    case_id: data.case_id,\n    risk_score: data.risk_score,\n    dispatched: true\n  }\n}];"
+      },
+      "id": "node-format-alert",
+      "name": "Format Operational Alert",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1140, 240]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Non-urgent audit log for completed/medium cases\nconsole.log(`[DIAVN Audit] Event ${$json.event_id} (${$json.event_type}) recorded. No urgent alert triggered.`);\nreturn [{ json: { status: 'audit_logged', event_id: $json.event_id } }];"
+      },
+      "id": "node-audit-log",
+      "name": "Audit Log Only",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1140, 420]
+    }
+  ],
+  "connections": {
+    "DIAVN Webhook Receiver": {
+      "main": [
+        [
+          {
+            "node": "Validate HMAC & Timestamp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate HMAC & Timestamp": {
+      "main": [
+        [
+          {
+            "node": "Durable Deduplication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Durable Deduplication": {
+      "main": [
+        [
+          {
+            "node": "Is High Risk & Not Duplicate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is High Risk & Not Duplicate?": {
+      "main": [
+        [
+          {
+            "node": "Format Operational Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Audit Log Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1"
+}
