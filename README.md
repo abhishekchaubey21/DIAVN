@@ -2,7 +2,7 @@
 
 **DIAVN** is an open-source, enterprise-grade verification and risk intelligence platform built for banks, non-banking financial companies (NBFCs), and clean-energy lenders. It verifies distributed physical equipment (solar installations, water pumps, micro-irrigation systems, farm machinery) financed through dealer networks.
 
-> **Core Philosophy**: LLMs interpret raw unstructured evidence (invoices, nameplate photos, documentation); deterministic code enforces verification and calculates risk signals. The platform surfaces risk metrics, anomalies, and verification tasks—it **never** claims that fraud has been definitively proven.
+> **Core Philosophy**: LLMs interpret raw unstructured evidence (invoices, nameplate photos, documentation); deterministic code enforces verification and calculates risk signals. The platform surfaces risk metrics, anomalies, and verification tasks—it *never* claims that fraud has been definitively proven.
 
 > **Free-First Policy**: All external APIs are optional dependencies and must use free tiers or free/open-source alternatives. Zero billing or paid subscriptions required.
 
